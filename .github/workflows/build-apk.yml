@@ -3,8 +3,6 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -23,17 +21,22 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Fix gradlew permissions
+    - name: Validate project structure
       run: |
-        ls -la gradlew || echo "gradlew not found"
+        echo "=== Validating Android project structure ==="
+        [ -f "app/src/main/AndroidManifest.xml" ] && echo "✓ AndroidManifest.xml found" || echo "✗ AndroidManifest.xml missing"
+        [ -f "app/src/main/java/com/example/navegador/MainActivity.java" ] && echo "✓ MainActivity.java found" || echo "✗ MainActivity.java missing"
+        [ -f "app/build.gradle" ] && echo "✓ app/build.gradle found" || echo "✗ app/build.gradle missing"
+        [ -f "build.gradle" ] && echo "✓ build.gradle found" || echo "✗ build.gradle missing"
+        [ -f "settings.gradle" ] && echo "✓ settings.gradle found" || echo "✗ settings.gradle missing"
+        [ -f "gradlew" ] && echo "✓ gradlew found" || echo "✗ gradlew missing"
+        
+    - name: Build APK
+      run: |
         chmod +x gradlew
-        ls -la gradlew
-      
-    - name: Build Debug APK
-      run: |
         ./gradlew assembleDebug --no-daemon --stacktrace
         
-    - name: Upload APK artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: Navegador-APK
