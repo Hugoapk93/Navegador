@@ -18,23 +18,23 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      
+    - name: Install Android SDK and Gradle
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y android-sdk gradle
+        
     - name: Validate project structure
       run: |
-        echo "=== Validating Android project structure ==="
-        [ -f "app/src/main/AndroidManifest.xml" ] && echo "✓ AndroidManifest.xml found" || echo "✗ AndroidManifest.xml missing"
-        [ -f "app/src/main/java/com/example/navegador/MainActivity.java" ] && echo "✓ MainActivity.java found" || echo "✗ MainActivity.java missing"
-        [ -f "app/build.gradle" ] && echo "✓ app/build.gradle found" || echo "✗ app/build.gradle missing"
-        [ -f "build.gradle" ] && echo "✓ build.gradle found" || echo "✗ build.gradle missing"
-        [ -f "settings.gradle" ] && echo "✓ settings.gradle found" || echo "✗ settings.gradle missing"
-        [ -f "gradlew" ] && echo "✓ gradlew found" || echo "✗ gradlew missing"
+        echo "=== Project Structure ==="
+        find . -name "*.gradle" -o -name "*.xml" -o -name "*.java" | grep -v ".git" | sort
+        echo "=== Critical Files Check ==="
+        [ -f "app/src/main/AndroidManifest.xml" ] && echo "✓ AndroidManifest.xml" || echo "✗ AndroidManifest.xml"
+        [ -f "app/src/main/java/com/example/navegador/MainActivity.java" ] && echo "✓ MainActivity.java" || echo "✗ MainActivity.java"
+        [ -f "app/build.gradle" ] && echo "✓ app/build.gradle" || echo "✗ app/build.gradle"
         
-    - name: Build APK
+    - name: Build with System Gradle
       run: |
-        chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon --stacktrace
+        gradle assembleDebug --stacktrace --no-daemon
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
