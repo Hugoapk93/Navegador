@@ -18,23 +18,20 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Install Android SDK and Gradle
+    - name: Install Android Build Tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y android-sdk gradle
+        sudo apt-get install -y android-sdk
         
-    - name: Validate project structure
+    - name: Install Gradle 7.5.1
       run: |
-        echo "=== Project Structure ==="
-        find . -name "*.gradle" -o -name "*.xml" -o -name "*.java" | grep -v ".git" | sort
-        echo "=== Critical Files Check ==="
-        [ -f "app/src/main/AndroidManifest.xml" ] && echo "✓ AndroidManifest.xml" || echo "✗ AndroidManifest.xml"
-        [ -f "app/src/main/java/com/example/navegador/MainActivity.java" ] && echo "✓ MainActivity.java" || echo "✗ MainActivity.java"
-        [ -f "app/build.gradle" ] && echo "✓ app/build.gradle" || echo "✗ app/build.gradle"
+        wget https://services.gradle.org/distributions/gradle-7.5.1-bin.zip
+        sudo unzip -d /opt/gradle gradle-7.5.1-bin.zip
+        echo "/opt/gradle/gradle-7.5.1/bin" >> $GITHUB_PATH
         
-    - name: Build with System Gradle
+    - name: Build APK
       run: |
-        gradle assembleDebug --stacktrace --no-daemon
+        /opt/gradle/gradle-7.5.1/bin/gradle assembleDebug --stacktrace --no-daemon
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -42,3 +39,7 @@ jobs:
         name: Navegador-APK
         path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 7
+        
+    - name: Verify APK
+      run: |
+        find . -name "*.apk" -type f
