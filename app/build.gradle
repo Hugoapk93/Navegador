@@ -3,13 +3,12 @@ plugins {
 }
 
 android {
-    namespace 'com.example.navegador'
-    compileSdk 34
+    compileSdk 33
     
     defaultConfig {
         applicationId "com.example.navegador"
         minSdk 21
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0"
     }
@@ -29,5 +28,4 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
 }

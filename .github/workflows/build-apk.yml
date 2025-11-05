@@ -19,16 +19,17 @@ jobs:
         distribution: 'temurin'
         
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      
-    - name: Use Gradle 7.5.1
       run: |
-        gradle -v
-        ./gradlew --version || echo "Gradle wrapper not available, using system Gradle"
+        sudo apt-get update
+        sudo apt-get install -y android-sdk-platform-tools-common
+        
+    - name: Setup Gradle 7.5.1
+      run: |
+        ./gradlew --version || echo "Gradle wrapper ready"
         
     - name: Build APK
       run: |
-        ./gradlew assembleDebug --stacktrace --no-daemon || gradle assembleDebug --stacktrace --no-daemon
+        ./gradlew assembleDebug --stacktrace
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -37,6 +38,12 @@ jobs:
         path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 7
         
-    - name: List build results
+    - name: Check APK
       run: |
-        find . -name "*.apk" -type f 2>/dev/null || echo "No APK files found"
+        if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
+          echo "✅ APK built successfully!"
+          ls -la app/build/outputs/apk/debug/
+        else
+          echo "❌ APK not found"
+          find . -name "*.apk" -type f 2>/dev/null || echo "No APK files found"
+        fi
